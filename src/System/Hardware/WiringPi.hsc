@@ -12,6 +12,7 @@ module System.Hardware.WiringPi
   , digitalRead
   , digitalWrite
   , pwmWrite
+  , digitalWriteByte
   ) where
 
 import Control.Applicative
@@ -80,6 +81,10 @@ foreign import ccall unsafe "wiringPi.h pwmWrite"
                -> CInt
                -> IO ()
 
+foreign import ccall unsafe "wiringPi.h digitalWriteByte"
+    c_digitalWriteByte :: CInt
+                       -> IO ()
+
 wiringPiSetup :: IO ()
 wiringPiSetup = do
   ret <- c_wiringPiSetup
@@ -100,3 +105,6 @@ digitalWrite pin val = c_digitalWrite pin $ valueToInt val
 
 pwmWrite :: Pin -> AnalogValue -> IO ()
 pwmWrite = c_pwmWrite
+
+digitalWriteByte :: Word8 -> IO ()
+digitalWriteByte w = c_digitalWriteByte $ fromIntegral w
