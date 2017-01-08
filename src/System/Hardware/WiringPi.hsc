@@ -5,7 +5,8 @@ module System.Hardware.WiringPi
   , Value (..)
   , Mode (..)
   , Pud (..)
-  , AnalogValue
+  , PwmMode (..)
+  , PwmValue
   , wiringPiSetup
   , wiringPiSetupGpio
   , wiringPiSetupPhys
@@ -16,6 +17,9 @@ module System.Hardware.WiringPi
   , digitalWrite
   , pwmWrite
   , digitalWriteByte
+  , pwmSetMode
+  , pwmSetRange
+  , pwmSetClock
   , piBoardRev
   , wpiPinToGpio
   , physPinToGpio
@@ -23,14 +27,14 @@ module System.Hardware.WiringPi
 
 import Control.Applicative
 import Control.Monad ( when )
-import Data.Word ( Word8 )
-import Foreign.C.Types ( CInt(..) )
+import Data.Word ( Word8, Word16 )
+import Foreign.C.Types ( CInt(..), CUInt(..) )
 
 #include <wiringPi.h>
 
 type Pin = CInt
 
-type AnalogValue = CInt
+type PwmValue = Word16
 
 data Value = LOW | HIGH deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
@@ -39,6 +43,9 @@ data Mode = INPUT | OUTPUT | PWM_OUTPUT | GPIO_CLOCK
 
 data Pud = PUD_OFF | PUD_DOWN | PUD_UP
          deriving (Eq, Ord, Show, Read, Enum, Bounded)
+
+data PwmMode = PWM_MODE_BAL | PWM_MODE_MS
+             deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 valueToInt :: Value -> CInt
 valueToInt LOW  = #const LOW
@@ -59,6 +66,10 @@ pudToInt :: Pud -> CInt
 pudToInt PUD_OFF  = #const PUD_OFF
 pudToInt PUD_DOWN = #const PUD_DOWN
 pudToInt PUD_UP   = #const PUD_UP
+
+pwmModeToInt :: PwmMode -> CInt
+pwmModeToInt PWM_MODE_BAL = #const PWM_MODE_BAL
+pwmModeToInt PWM_MODE_MS  = #const PWM_MODE_MS
 
 foreign import ccall unsafe "wiringPi.h wiringPiSetup"
     c_wiringPiSetup :: IO CInt
@@ -99,6 +110,18 @@ foreign import ccall unsafe "wiringPi.h pwmWrite"
 foreign import ccall unsafe "wiringPi.h digitalWriteByte"
     c_digitalWriteByte :: CInt
                        -> IO ()
+
+foreign import ccall unsafe "wiringPi.h pwmSetMode"
+    c_pwmSetMode :: CInt
+                 -> IO ()
+
+foreign import ccall unsafe "wiringPi.h pwmSetRange"
+    c_pwmSetRange :: CUInt
+                  -> IO ()
+
+foreign import ccall unsafe "wiringPi.h pwmSetClock"
+    c_pwmSetClock :: CInt
+                  -> IO ()
 
 foreign import ccall unsafe "wiringPi.h piBoardRev"
     c_piBoardRev :: IO CInt
@@ -141,11 +164,20 @@ digitalRead pin = intToValue <$> c_digitalRead pin
 digitalWrite :: Pin -> Value -> IO ()
 digitalWrite pin val = c_digitalWrite pin $ valueToInt val
 
-pwmWrite :: Pin -> AnalogValue -> IO ()
-pwmWrite = c_pwmWrite
+pwmWrite :: Pin -> PwmValue -> IO ()
+pwmWrite pin val = c_pwmWrite pin $ fromIntegral val
 
 digitalWriteByte :: Word8 -> IO ()
 digitalWriteByte w = c_digitalWriteByte $ fromIntegral w
+
+pwmSetMode :: PwmMode -> IO ()
+pwmSetMode mode = c_pwmSetMode $ pwmModeToInt mode
+
+pwmSetRange :: PwmValue -> IO ()
+pwmSetRange range = c_pwmSetRange $ fromIntegral range
+
+pwmSetClock :: PwmValue -> IO ()
+pwmSetClock divisor = c_pwmSetClock $ fromIntegral divisor
 
 piBoardRev :: IO Int
 piBoardRev = fromIntegral <$> c_piBoardRev
