@@ -70,6 +70,8 @@ library
 
   extra-libraries:     wiringPi
 
+  ghc-options: -ddump-minimal-imports -fwarn-unused-imports -fwarn-unused-binds
+
 executable pwm-example
   -- .hs or .lhs file containing the Main module.
   main-is:             pwm-example.hs

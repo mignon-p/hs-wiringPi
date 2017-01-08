@@ -22,9 +22,9 @@ module System.Hardware.WiringPi
   ) where
 
 import Control.Applicative
-import Control.Monad
-import Foreign
-import Foreign.C.Types
+import Control.Monad ( when )
+import Data.Word ( Word8 )
+import Foreign.C.Types ( CInt(..) )
 
 #include <wiringPi.h>
 
