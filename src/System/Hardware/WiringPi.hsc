@@ -13,6 +13,9 @@ module System.Hardware.WiringPi
   , digitalWrite
   , pwmWrite
   , digitalWriteByte
+  , piBoardRev
+  , wpiPinToGpio
+  , physPinToGpio
   ) where
 
 import Control.Applicative
@@ -85,6 +88,17 @@ foreign import ccall unsafe "wiringPi.h digitalWriteByte"
     c_digitalWriteByte :: CInt
                        -> IO ()
 
+foreign import ccall unsafe "wiringPi.h piBoardRev"
+    c_piBoardRev :: IO CInt
+
+foreign import ccall unsafe "wiringPi.h wpiPinToGpio"
+    c_wpiPinToGpio :: CInt
+                   -> IO CInt
+
+foreign import ccall unsafe "wiringPi.h physPinToGpio"
+    c_physPinToGpio :: CInt
+                    -> IO CInt
+
 wiringPiSetup :: IO ()
 wiringPiSetup = do
   ret <- c_wiringPiSetup
@@ -108,3 +122,12 @@ pwmWrite = c_pwmWrite
 
 digitalWriteByte :: Word8 -> IO ()
 digitalWriteByte w = c_digitalWriteByte $ fromIntegral w
+
+piBoardRev :: IO Int
+piBoardRev = fromIntegral <$> c_piBoardRev
+
+wpiPinToGpio :: Pin -> IO Pin
+wpiPinToGpio = c_wpiPinToGpio
+
+physPinToGpio :: Pin -> IO Pin
+physPinToGpio = c_physPinToGpio
