@@ -5,10 +5,13 @@ module System.Hardware.WiringPi
   , Value (..)
   , Mode (..)
   , Pud (..)
+  , AnalogValue
   , wiringPiSetup
   , pinMode
   , pullUpDnControl
   , digitalRead
+  , digitalWrite
+  , pwmWrite
   ) where
 
 import Control.Applicative
@@ -19,6 +22,8 @@ import Foreign.C.Types
 #include <wiringPi.h>
 
 type Pin = CInt
+
+type AnalogValue = CInt
 
 data Value = LOW | HIGH deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
@@ -65,6 +70,16 @@ foreign import ccall unsafe "wiringPi.h digitalRead"
     c_digitalRead :: CInt
                   -> IO CInt
 
+foreign import ccall unsafe "wiringPi.h digitalWrite"
+    c_digitalWrite :: CInt
+                   -> CInt
+                   -> IO ()
+
+foreign import ccall unsafe "wiringPi.h pwmWrite"
+    c_pwmWrite :: CInt
+               -> CInt
+               -> IO ()
+
 wiringPiSetup :: IO ()
 wiringPiSetup = do
   ret <- c_wiringPiSetup
@@ -79,3 +94,9 @@ pullUpDnControl pin pud = c_pullUpDnControl pin $ pudToInt pud
 
 digitalRead :: Pin -> IO Value
 digitalRead pin = intToValue <$> c_digitalRead pin
+
+digitalWrite :: Pin -> Value -> IO ()
+digitalWrite pin val = c_digitalWrite pin $ valueToInt val
+
+pwmWrite :: Pin -> AnalogValue -> IO ()
+pwmWrite = c_pwmWrite

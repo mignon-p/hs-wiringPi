@@ -67,3 +67,22 @@ library
 
   -- Base language which the package is written in.
   default-language:    Haskell2010
+
+  extra-libraries:     wiringPi
+
+executable pwm-example
+  -- .hs or .lhs file containing the Main module.
+  main-is:             pwm-example.hs
+
+  -- LANGUAGE extensions used by modules in this package.
+  -- other-extensions:
+
+  -- Other library packages from which modules are imported.
+  build-depends:       base >= 4.6 && < 5
+                     , wiringPi
+
+  -- Directories containing source files.
+  hs-source-dirs:      examples
+
+  -- Base language which the package is written in.
+  default-language:    Haskell2010
