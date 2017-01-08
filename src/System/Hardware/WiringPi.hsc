@@ -7,6 +7,9 @@ module System.Hardware.WiringPi
   , Pud (..)
   , AnalogValue
   , wiringPiSetup
+  , wiringPiSetupGpio
+  , wiringPiSetupPhys
+  , wiringPiSetupSys
   , pinMode
   , pullUpDnControl
   , digitalRead
@@ -60,6 +63,15 @@ pudToInt PUD_UP   = #const PUD_UP
 foreign import ccall unsafe "wiringPi.h wiringPiSetup"
     c_wiringPiSetup :: IO CInt
 
+foreign import ccall unsafe "wiringPi.h wiringPiSetupGpio"
+    c_wiringPiSetupGpio :: IO CInt
+
+foreign import ccall unsafe "wiringPi.h wiringPiSetupPhys"
+    c_wiringPiSetupPhys :: IO CInt
+
+foreign import ccall unsafe "wiringPi.h wiringPiSetupSys"
+    c_wiringPiSetupSys :: IO CInt
+
 foreign import ccall unsafe "wiringPi.h pinMode"
     c_pinMode :: CInt
               -> CInt
@@ -99,11 +111,23 @@ foreign import ccall unsafe "wiringPi.h physPinToGpio"
     c_physPinToGpio :: CInt
                     -> IO CInt
 
-wiringPiSetup :: IO ()
-wiringPiSetup = do
-  ret <- c_wiringPiSetup
+doWiringPiSetup :: IO CInt -> String -> IO ()
+doWiringPiSetup setupFunc name = do
+  ret <- setupFunc
   when (ret /= 0) $
-    fail $ "failing return code " ++ show ret ++ " for wiringPiSetup"
+    fail $ "failing return code " ++ show ret ++ " for " ++ name
+
+wiringPiSetup :: IO ()
+wiringPiSetup = doWiringPiSetup c_wiringPiSetup "wiringPiSetup"
+
+wiringPiSetupGpio :: IO ()
+wiringPiSetupGpio = doWiringPiSetup c_wiringPiSetupGpio "wiringPiSetupGpio"
+
+wiringPiSetupPhys :: IO ()
+wiringPiSetupPhys = doWiringPiSetup c_wiringPiSetupPhys "wiringPiSetupPhys"
+
+wiringPiSetupSys :: IO ()
+wiringPiSetupSys = doWiringPiSetup c_wiringPiSetupSys "wiringPiSetupSys"
 
 pinMode :: Pin -> Mode -> IO ()
 pinMode pin mode = c_pinMode pin $ modeToInt mode
