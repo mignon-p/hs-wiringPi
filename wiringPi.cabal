@@ -16,7 +16,13 @@ version:             0.1.0.0
 synopsis:            Access GPIO pins on Raspberry Pi via wiringPi library
 
 -- A longer description of the package.
--- description:
+description:
+            This is a Haskell binding to the <http://wiringpi.com/ wiringPi library>,
+            which allows you to interface with the GPIO pins on the
+            <https://www.raspberrypi.org/ Raspberry Pi>.
+            Unlike some other solutions for using the Raspberry Pi's GPIO pins,
+            wiringPi provides access to more advanced features, such as
+            enabling the internal pull-up or pull-down resistors.
 
 -- The license under which the package is released.
 license:             BSD3
@@ -44,6 +50,8 @@ build-type:          Simple
 
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.10
+
+tested-with:         GHC == 7.6.3
 
 
 library
