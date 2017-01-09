@@ -164,3 +164,20 @@ executable broadcom-example
 
   -- Base language which the package is written in.
   default-language:    Haskell2010
+
+executable turn-off
+  -- .hs or .lhs file containing the Main module.
+  main-is:             turn-off.hs
+
+  -- LANGUAGE extensions used by modules in this package.
+  -- other-extensions:
+
+  -- Other library packages from which modules are imported.
+  build-depends:       base >= 4.6 && < 5
+                     , wiringPi
+
+  -- Directories containing source files.
+  hs-source-dirs:      examples
+
+  -- Base language which the package is written in.
+  default-language:    Haskell2010
