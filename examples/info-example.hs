@@ -1,3 +1,6 @@
+-- Example of some miscellaneous functions.
+-- Doesn't need any hardware connected.
+
 import System.Hardware.WiringPi
 
 main = do
