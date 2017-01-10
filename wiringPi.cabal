@@ -38,7 +38,11 @@ author:              Patrick Pelletier
 maintainer:          code@funwithsoftware.org
 
 -- A copyright notice.
--- copyright:
+copyright:           © Patrick Pelletier, 2017
+
+homepage:            https://github.com/ppelleti/hs-wiringPi
+
+bug-reports:         https://github.com/ppelleti/hs-wiringPi/issues
 
 category:            Hardware
 
@@ -52,6 +56,10 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 tested-with:         GHC == 7.6.3
+
+source-repository head
+  Type:     git
+  Location: https://github.com/ppelleti/hs-wiringPi.git
 
 
 library
@@ -78,7 +86,7 @@ library
 
   extra-libraries:     wiringPi
 
-  ghc-options: -ddump-minimal-imports -fwarn-unused-imports -fwarn-unused-binds
+  ghc-options:         -fwarn-unused-imports -fwarn-unused-binds
 
 executable pwm-example
   -- .hs or .lhs file containing the Main module.
