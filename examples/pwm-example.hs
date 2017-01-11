@@ -8,10 +8,9 @@ import Control.Monad
 
 import System.Hardware.WiringPi
 
-pwmPin = 1
+pwmPin = Wpi 1
 
 main = do
-  wiringPiSetup
   pinMode pwmPin PWM_OUTPUT
   forM_ [0, 0.1 ..] $ \x -> do
     let y = sin x

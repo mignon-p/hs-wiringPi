@@ -10,9 +10,8 @@ import Control.Monad
 import System.Hardware.WiringPi
 
 main = do
-  wiringPiSetup
-  forM_ [0..7] $ \x -> pinMode x OUTPUT
+  forM_ [0..7] $ \x -> pinMode (Wpi x) OUTPUT
   forever $ forM_ [0..7] $ \x -> do
-    digitalWrite x HIGH
+    digitalWrite (Wpi x) HIGH
     threadDelay 200000
-    digitalWrite x LOW
+    digitalWrite (Wpi x) LOW

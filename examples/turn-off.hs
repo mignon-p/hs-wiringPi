@@ -5,6 +5,5 @@ import Control.Monad
 import System.Hardware.WiringPi
 
 main = do
-  wiringPiSetup
-  forM_ [0..7] $ \x -> pinMode x OUTPUT
+  forM_ [0..7] $ \x -> pinMode (Wpi x) OUTPUT
   digitalWriteByte 0

@@ -1,0 +1,13 @@
+-*- Text -*-
+
+1.0
+
+* Initialization is now automatic.
+
+* Pin now has three constructors, one for each pin numbering scheme.
+  You can now mix pin numbering schemes in a single program, rather
+  than having to choose one at initialization time.
+
+0.1  @  Tue Jan 10 21:15:33 UTC 2017
+
+* Initial release.

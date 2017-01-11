@@ -10,7 +10,8 @@ Stability   : experimental
 Portability : Raspberry Pi
 
 This is a Haskell binding to the <http://wiringpi.com/ wiringPi library>.
-The functions here correspond directly to the functions in the C library.
+The functions here (mostly) correspond directly to the functions in the C
+library, except for how initialization and pin numbering are handled.
 To use this library, you must either run as root, or set the @WIRINGPI_GPIOMEM@
 environment variable.  However, if you set @WIRINGPI_GPIOMEM@, then
 <http://wiringpi.com/wiringpi-update-to-2-29/ PWM does not work>,
@@ -19,23 +20,24 @@ so to use PWM you must be root.
 
 module System.Hardware.WiringPi
   ( -- * Types
-    Pin
+    Pin (..)
   , Value (..)
   , Mode (..)
   , Pud (..)
   , PwmMode (..)
   , PwmValue
-    -- * Setup functions
+    -- * Setup function
     -- | See <http://wiringpi.com/reference/setup/ WiringPi Setup functions>.
-    -- You must call one of these functions, only once, before calling any
-    -- other wiringPi functions.  The pin numbering scheme depends on which
-    -- setup function you call.  On error, the program will be terminated,
-    -- unless the environment variable @WIRINGPI_CODES@ is set, in which
-    -- case an exception will be thrown.
-  , wiringPiSetup
+    -- Unlike the C version of wiringPi, the Haskell binding will automatically
+    -- call the setup function the first time a wiringPi function is called.
+    -- The only reason to call it manually is if you want to check for errors
+    -- earlier than your first call.  It is also harmless to call it multiple
+    -- times.  In the Haskell binding the \"GPIO\"
+    -- numbering scheme is always used internally, but the 'Pin' constructors
+    -- allow you to choose whichever numbering scheme you want, on a pin-by-pin
+    -- basis.  This avoids having to choose a single pin numbering scheme at
+    -- initialization time, as you do with the C library.
   , wiringPiSetupGpio
-  , wiringPiSetupPhys
-  , wiringPiSetupSys
     -- * Core functions
     -- | See <http://wiringpi.com/reference/core-functions/ Core wiringPi functions>.
   , pinMode
@@ -50,20 +52,33 @@ module System.Hardware.WiringPi
   , pwmSetRange
   , pwmSetClock
   , piBoardRev
-  , wpiPinToGpio
-  , physPinToGpio
+  , pinToBcmGpio
   ) where
 
 import Control.Applicative
+import Control.Exception ( evaluate )
 import Control.Monad ( when )
+import Data.Ord ( comparing )
 import Data.Word ( Word8, Word16 )
 import Foreign.C.Types ( CInt(..), CUInt(..) )
+import System.IO.Unsafe ( unsafePerformIO )
 
 #include <wiringPi.h>
 
 -- | Represents a <http://wiringpi.com/pins/ pin number>.
--- The meaning of the pin number depends on which setup function was called.
-type Pin = CInt
+-- The constructor determines which one of the three
+-- pin numbering schemes is used.
+data Pin = Wpi Int   -- ^ use wiringPi pin number
+         | Gpio Int  -- ^ use BCM_GPIO numbering (these are the numbers on the
+                     --   <https://www.adafruit.com/products/1754 Adafruit cobbler>).
+         | Phys Int  -- ^ use physical pin numbers on P1 connector
+  deriving (Show, Read)
+
+instance Ord Pin where
+  compare = comparing pinToBcmGpio
+
+instance Eq Pin where
+  p1 == p2 = compare p1 p2 == EQ
 
 -- | Value used with 'pwmWrite'.  Typically ranges from 0-1024, but the
 -- range can be increased up to 4096 by calling 'pwmSetRange'.
@@ -115,17 +130,8 @@ pwmModeToInt :: PwmMode -> CInt
 pwmModeToInt PWM_MODE_BAL = #const PWM_MODE_BAL
 pwmModeToInt PWM_MODE_MS  = #const PWM_MODE_MS
 
-foreign import ccall unsafe "wiringPi.h wiringPiSetup"
-    c_wiringPiSetup :: IO CInt
-
 foreign import ccall unsafe "wiringPi.h wiringPiSetupGpio"
     c_wiringPiSetupGpio :: IO CInt
-
-foreign import ccall unsafe "wiringPi.h wiringPiSetupPhys"
-    c_wiringPiSetupPhys :: IO CInt
-
-foreign import ccall unsafe "wiringPi.h wiringPiSetupSys"
-    c_wiringPiSetupSys :: IO CInt
 
 foreign import ccall unsafe "wiringPi.h pinMode"
     c_pinMode :: CInt
@@ -178,69 +184,113 @@ foreign import ccall unsafe "wiringPi.h physPinToGpio"
     c_physPinToGpio :: CInt
                     -> IO CInt
 
-doWiringPiSetup :: IO CInt -> String -> IO ()
-doWiringPiSetup setupFunc name = do
-  ret <- setupFunc
+doWiringPiSetup :: IO ()
+doWiringPiSetup = do
+  ret <- c_wiringPiSetupGpio
   when (ret /= 0) $
-    fail $ "failing return code " ++ show ret ++ " for " ++ name
+    fail $ "failing return code " ++ show ret ++ " for wiringPiSetupGpio"
 
--- | Use <http://wiringpi.com/pins/ wiringPi's pin numbers>.
-wiringPiSetup :: IO ()
-wiringPiSetup = doWiringPiSetup c_wiringPiSetup "wiringPiSetup"
+-- Use a CAF to do initialization once.  Borrowed this trick from the
+-- "network" package.
+initWiringPiSetup :: ()
+initWiringPiSetup = unsafePerformIO $ doWiringPiSetup
 
--- | Use Broadcom chip's GPIO numbers.  These are the numbers on the
--- <https://www.adafruit.com/products/1754 Adafruit cobbler>.
+-- | Initialize the wiringPi library.  This is optional, because it will
+-- automatically be called on the first use of a wiringPi function.
+-- On error, the program will be terminated,
+-- unless the environment variable @WIRINGPI_CODES@ is set, in which
+-- case an exception will be thrown.
 wiringPiSetupGpio :: IO ()
-wiringPiSetupGpio = doWiringPiSetup c_wiringPiSetupGpio "wiringPiSetupGpio"
-
--- | Use physical pin numbers on the P1 connector.
-wiringPiSetupPhys :: IO ()
-wiringPiSetupPhys = doWiringPiSetup c_wiringPiSetupPhys "wiringPiSetupPhys"
-
--- | Use Broadcom chip's GPIO numbers.  Accesses the GPIO via
--- @\/sys\/class\/GPIO@.  A bunch of functionality is not available
--- in this mode.
-wiringPiSetupSys :: IO ()
-wiringPiSetupSys = doWiringPiSetup c_wiringPiSetupSys "wiringPiSetupSys"
+wiringPiSetupGpio = evaluate initWiringPiSetup
 
 pinMode :: Pin -> Mode -> IO ()
-pinMode pin mode = c_pinMode pin $ modeToInt mode
+pinMode pin mode = do
+  wiringPiSetupGpio
+  c_pinMode (pin2bcm pin "pinMode") (modeToInt mode)
 
 pullUpDnControl :: Pin -> Pud -> IO ()
-pullUpDnControl pin pud = c_pullUpDnControl pin $ pudToInt pud
+pullUpDnControl pin pud = do
+  wiringPiSetupGpio
+  c_pullUpDnControl (pin2bcm pin "pullUpDnControl") (pudToInt pud)
 
 digitalRead :: Pin -> IO Value
-digitalRead pin = intToValue <$> c_digitalRead pin
+digitalRead pin = do
+  wiringPiSetupGpio
+  intToValue <$> c_digitalRead (pin2bcm pin "digitalRead")
 
 digitalWrite :: Pin -> Value -> IO ()
-digitalWrite pin val = c_digitalWrite pin $ valueToInt val
+digitalWrite pin val = do
+  wiringPiSetupGpio
+  c_digitalWrite (pin2bcm pin "digitalWrite") (valueToInt val)
 
 -- | Default range is 0-1024, but it can be changed with 'pwmSetRange'.
 pwmWrite :: Pin -> PwmValue -> IO ()
-pwmWrite pin val = c_pwmWrite pin $ fromIntegral val
+pwmWrite pin val = do
+  wiringPiSetupGpio
+  c_pwmWrite (pin2bcm pin "pwmWrite") (fromIntegral val)
 
 -- | Write 8 bits to the 8 pins that have wiringPi pin numbers 0-7.
 digitalWriteByte :: Word8 -> IO ()
-digitalWriteByte w = c_digitalWriteByte $ fromIntegral w
+digitalWriteByte w = do
+  wiringPiSetupGpio
+  c_digitalWriteByte $ fromIntegral w
 
 pwmSetMode :: PwmMode -> IO ()
-pwmSetMode mode = c_pwmSetMode $ pwmModeToInt mode
+pwmSetMode mode = do
+  wiringPiSetupGpio
+  c_pwmSetMode $ pwmModeToInt mode
 
 -- | Change the range used by 'pwmWrite'.  Default is 1024.
 -- <https://raspberrypi.stackexchange.com/questions/4906/control-hardware-pwm-frequency/9725#9725 Maxium is 4096>.
 pwmSetRange :: PwmValue -> IO ()
-pwmSetRange range = c_pwmSetRange $ fromIntegral range
+pwmSetRange range = do
+  wiringPiSetupGpio
+  c_pwmSetRange $ fromIntegral range
 
 -- | Change the PWM divisor.  Range is
 -- <https://raspberrypi.stackexchange.com/questions/4906/control-hardware-pwm-frequency/9725#9725 2-4095>.
 pwmSetClock :: PwmValue -> IO ()
-pwmSetClock divisor = c_pwmSetClock $ fromIntegral divisor
+pwmSetClock divisor = do
+  wiringPiSetupGpio
+  c_pwmSetClock $ fromIntegral divisor
 
 piBoardRev :: IO Int
-piBoardRev = fromIntegral <$> c_piBoardRev
+piBoardRev = do
+  wiringPiSetupGpio
+  fromIntegral <$> c_piBoardRev
 
-wpiPinToGpio :: Pin -> IO Pin
-wpiPinToGpio = c_wpiPinToGpio
+wpiPinToGpio :: CInt -> IO CInt
+wpiPinToGpio x = do
+  wiringPiSetupGpio
+  c_wpiPinToGpio x
 
-physPinToGpio :: Pin -> IO Pin
-physPinToGpio = c_physPinToGpio
+physPinToGpio :: CInt -> IO CInt
+physPinToGpio x = do
+  wiringPiSetupGpio
+  c_physPinToGpio x
+
+-- | Converts a pin to its \"Broadcom GPIO\" number.  This relies on
+-- 'unsafePerformIO' internally, because the pin mapping depends on
+-- the board revision.  Returns 'Nothing' if the pin number is
+-- invalid; e. g. it is out of range or is a power or ground pin
+-- on the physical connector.
+pinToBcmGpio :: Pin -> Maybe Int
+pinToBcmGpio (Wpi n) = cvtPin n (unsafePerformIO . wpiPinToGpio)
+pinToBcmGpio (Gpio n) = cvtPin n id
+pinToBcmGpio (Phys n) = cvtPin n (unsafePerformIO . physPinToGpio)
+
+pin2bcm :: Pin -> String -> CInt
+pin2bcm p name =
+  case pinToBcmGpio p of
+    (Just x) -> fromIntegral x
+    Nothing -> error $ "Illegal pin " ++ (show p) ++ " passed to " ++ name
+
+cvtPin :: Int -> (CInt -> CInt) -> Maybe Int
+cvtPin n f
+  | n >= 0 && n < 64 = chkRange $ fromIntegral $ f $ fromIntegral n
+  | otherwise = Nothing
+
+chkRange :: Int -> Maybe Int
+chkRange n
+  | n >= 0 && n < 64 = Just n
+  | otherwise = Nothing

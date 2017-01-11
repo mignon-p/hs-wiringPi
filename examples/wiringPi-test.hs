@@ -21,55 +21,57 @@ assertPin pin expected = do
     exitFailure
 
 main = do
+  rev <- piBoardRev
+  putStrLn $ "piBoardRev = " ++ show rev
+
   -- setup
-  wiringPiSetup
-  pinMode 0 OUTPUT
-  pinMode 1 PWM_OUTPUT
-  pinMode 2 OUTPUT
-  pinMode 3 OUTPUT
-  pinMode 4 OUTPUT
-  pinMode 5 INPUT
-  pinMode 6 INPUT
-  pinMode 7 OUTPUT
+  pinMode (Wpi 0) OUTPUT
+  pinMode (Wpi 1) PWM_OUTPUT
+  pinMode (Wpi 2) OUTPUT
+  pinMode (Wpi 3) OUTPUT
+  pinMode (Wpi 4) OUTPUT
+  pinMode (Wpi 5) INPUT
+  pinMode (Wpi 6) INPUT
+  pinMode (Wpi 7) OUTPUT
 
-  pullUpDnControl 5 PUD_OFF
-  pullUpDnControl 6 PUD_DOWN
+  pullUpDnControl (Wpi 5) PUD_OFF
+  pullUpDnControl (Wpi 6) PUD_DOWN
 
-  let ledPins = [7,0,2,3]
-      pwmPin = 1
+  let ledPins = map Wpi [7,0,2,3]
+      pwmPin = Wpi 1
 
   forM_ ledPins $ \pin -> digitalWrite pin HIGH
   pwmWrite pwmPin 0
 
   -- test an input connected to an output
-  digitalWrite 4 LOW
+  digitalWrite (Wpi 4) LOW
   shortDelay
-  assertPin 5 LOW
+  assertPin (Wpi 5) LOW
 
-  digitalWrite 4 HIGH
+  digitalWrite (Wpi 4) HIGH
   shortDelay
-  assertPin 5 HIGH
+  assertPin (Wpi 5) HIGH
 
   -- and the same thing in the other direction
-  pinMode 4 INPUT
-  pinMode 5 OUTPUT
-  pullUpDnControl 4 PUD_OFF
+  pinMode (Wpi 4) INPUT
+  pinMode (Wpi 5) OUTPUT
+  pullUpDnControl (Wpi 4) PUD_OFF
 
-  digitalWrite 5 LOW
+  digitalWrite (Wpi 5) LOW
   shortDelay
-  assertPin 4 LOW
+  assertPin (Wpi 4) LOW
 
-  digitalWrite 5 HIGH
+  digitalWrite (Wpi 5) HIGH
   shortDelay
-  assertPin 4 HIGH
-  digitalWrite 5 LOW
-  pinMode 5 INPUT
+  assertPin (Wpi 4) HIGH
+  digitalWrite (Wpi 5) LOW
+  pinMode (Wpi 5) INPUT
 
   -- test pullup/pulldown functionality (assumes button is not pressed)
-  assertPin 6 LOW
-  pullUpDnControl 6 PUD_UP
+  assertPin (Wpi 6) LOW
+  pullUpDnControl (Wpi 6) PUD_UP
   shortDelay
-  assertPin 6 HIGH
+  assertPin (Wpi 6) HIGH
 
   -- now blink LEDs and wait for user to press button
   putStrLn "One LED should be pulsing, and four LEDs should be blinking."
@@ -83,7 +85,7 @@ main = do
     forM_ [0..3] $ \i ->
       digitalWrite (ledPins !! i) (if i == n then HIGH else LOW)
     shortDelay
-    button <- digitalRead 6
+    button <- digitalRead (Wpi 6)
     when (button == LOW) $ do
       forM_ ledPins $ \pin -> digitalWrite pin LOW
       pwmWrite pwmPin 0
