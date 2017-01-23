@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP, ForeignFunctionInterface #-}
-
 {-|
 Module      : System.Hardware.WiringPi
 Description : Bindings to wiringPi library
@@ -60,10 +58,11 @@ import Control.Exception ( evaluate )
 import Control.Monad ( when )
 import Data.Ord ( comparing )
 import Data.Word ( Word8, Word16 )
-import Foreign.C.Types ( CInt(..), CUInt(..) )
+import Foreign.C.Types ( CInt(..) )
 import System.IO.Unsafe ( unsafePerformIO )
 
-#include <wiringPi.h>
+import System.Hardware.WiringPi.Enums
+import System.Hardware.WiringPi.Foreign
 
 -- | Represents a <http://wiringpi.com/pins/ pin number>.
 -- The constructor determines which one of the three
@@ -83,106 +82,6 @@ instance Eq Pin where
 -- | Value used with 'pwmWrite'.  Typically ranges from 0-1024, but the
 -- range can be increased up to 4096 by calling 'pwmSetRange'.
 type PwmValue = Word16
-
--- | Digital logic level.
-data Value = LOW | HIGH deriving (Eq, Ord, Show, Read, Enum, Bounded)
-
--- | Pin mode, used with 'pinMode'.
-data Mode = INPUT      -- ^ digital input
-          | OUTPUT     -- ^ digital output
-          | PWM_OUTPUT -- ^ pulse-width modulation; only supported on wiringPi pin 1
-          | GPIO_CLOCK -- ^ clock output; only supported on wiringPi pin 7
-          deriving (Eq, Ord, Show, Read, Enum, Bounded)
-
--- | Use with 'pullUpDnControl' to enable internal pull-up or pull-down
--- resistor.
-data Pud = PUD_OFF  -- ^ disable pull-up/pull-down
-         | PUD_DOWN -- ^ enable pull-down resistor
-         | PUD_UP   -- ^ enable pull-up resistor
-         deriving (Eq, Ord, Show, Read, Enum, Bounded)
-
--- | Argument to 'pwmSetMode' to set \"balanced\" mode or \"mark-space\" mode.
-data PwmMode = PWM_MODE_BAL -- ^ balanced mode
-             | PWM_MODE_MS  -- ^ mark-space mode
-             deriving (Eq, Ord, Show, Read, Enum, Bounded)
-
-valueToInt :: Value -> CInt
-valueToInt LOW  = #const LOW
-valueToInt HIGH = #const HIGH
-
-intToValue :: CInt -> Value
-intToValue #const LOW
-  = LOW
-intToValue _          = HIGH
-
-modeToInt :: Mode -> CInt
-modeToInt INPUT      = #const INPUT
-modeToInt OUTPUT     = #const OUTPUT
-modeToInt PWM_OUTPUT = #const PWM_OUTPUT
-modeToInt GPIO_CLOCK = #const GPIO_CLOCK
-
-pudToInt :: Pud -> CInt
-pudToInt PUD_OFF  = #const PUD_OFF
-pudToInt PUD_DOWN = #const PUD_DOWN
-pudToInt PUD_UP   = #const PUD_UP
-
-pwmModeToInt :: PwmMode -> CInt
-pwmModeToInt PWM_MODE_BAL = #const PWM_MODE_BAL
-pwmModeToInt PWM_MODE_MS  = #const PWM_MODE_MS
-
-foreign import ccall unsafe "wiringPi.h wiringPiSetupGpio"
-    c_wiringPiSetupGpio :: IO CInt
-
-foreign import ccall unsafe "wiringPi.h pinMode"
-    c_pinMode :: CInt
-              -> CInt
-              -> IO ()
-
-foreign import ccall unsafe "wiringPi.h pullUpDnControl"
-    c_pullUpDnControl :: CInt
-                      -> CInt
-                      -> IO ()
-
-foreign import ccall unsafe "wiringPi.h digitalRead"
-    c_digitalRead :: CInt
-                  -> IO CInt
-
-foreign import ccall unsafe "wiringPi.h digitalWrite"
-    c_digitalWrite :: CInt
-                   -> CInt
-                   -> IO ()
-
-foreign import ccall unsafe "wiringPi.h pwmWrite"
-    c_pwmWrite :: CInt
-               -> CInt
-               -> IO ()
-
-foreign import ccall unsafe "wiringPi.h digitalWriteByte"
-    c_digitalWriteByte :: CInt
-                       -> IO ()
-
-foreign import ccall unsafe "wiringPi.h pwmSetMode"
-    c_pwmSetMode :: CInt
-                 -> IO ()
-
-foreign import ccall unsafe "wiringPi.h pwmSetRange"
-    c_pwmSetRange :: CUInt
-                  -> IO ()
-
-foreign import ccall unsafe "wiringPi.h pwmSetClock"
-    c_pwmSetClock :: CInt
-                  -> IO ()
-
-foreign import ccall unsafe "wiringPi.h piBoardRev"
-    c_piBoardRev :: IO CInt
-
-foreign import ccall unsafe "wiringPi.h wpiPinToGpio"
-    c_wpiPinToGpio :: CInt
-                   -> IO CInt
-
-foreign import ccall unsafe "wiringPi.h physPinToGpio"
-    c_physPinToGpio :: CInt
-                    -> IO CInt
 
 doWiringPiSetup :: IO ()
 doWiringPiSetup = do
