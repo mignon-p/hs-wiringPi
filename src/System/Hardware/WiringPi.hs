@@ -96,9 +96,11 @@ initWiringPiSetup = unsafePerformIO $ doWiringPiSetup
 
 -- | Initialize the wiringPi library.  This is optional, because it will
 -- automatically be called on the first use of a wiringPi function.
--- On error, the program will be terminated,
--- unless the environment variable @WIRINGPI_CODES@ is set, in which
--- case an exception will be thrown.
+-- Raises an exception if the underlying C function returns an error
+-- code.  However, in practice, the C function @wiringPiSetupGpio@
+-- terminates the program on error.  Setting the environment variable
+-- @WIRINGPI_CODES@ is supposed to change this behavior, but in my
+-- experience it doesn't, and the program is still terminated on error.
 wiringPiSetupGpio :: IO ()
 wiringPiSetupGpio = evaluate initWiringPiSetup
 
