@@ -1,3 +1,5 @@
+[![Hackage](https://img.shields.io/hackage/v/wiringPi.svg)](https://hackage.haskell.org/package/wiringPi)
+
 This is a Haskell binding to the [wiringPi library][1], which allows
 you to interface with the [GPIO][4] pins on the [Raspberry Pi][2].
 Unlike some other solutions for using the Raspberry Pi's GPIO pins,
