@@ -44,7 +44,7 @@ homepage:            https://github.com/ppelleti/hs-wiringPi
 
 bug-reports:         https://github.com/ppelleti/hs-wiringPi/issues
 
-category:            Hardware
+category:            Hardware, Raspberrypi
 
 build-type:          Simple
 
