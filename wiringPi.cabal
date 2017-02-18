@@ -52,6 +52,7 @@ build-type:          Simple
 -- README.
 extra-source-files:  README.md
                    , CHANGELOG
+                   , pin-diagram.png
                    , examples/LICENSE-FOR-EXAMPLES
 
 -- Constraint on the version of Cabal needed to build this package.
