@@ -66,7 +66,10 @@ import System.Hardware.WiringPi.Foreign
 
 -- | Represents a <http://wiringpi.com/pins/ pin number>.
 -- The constructor determines which one of the three
--- pin numbering schemes is used.
+-- pin numbering schemes is used.  See
+-- <https://github.com/ppelleti/hs-wiringPi/blob/master/README.md#pin-numbering the README>
+-- for details, and a pretty picture.  '==' returns true for the same physical
+-- pin, even if different pin numbering schemes are used.
 data Pin = Wpi Int   -- ^ use wiringPi pin number
          | Gpio Int  -- ^ use BCM_GPIO numbering (these are the numbers on the
                      --   <https://www.adafruit.com/products/1754 Adafruit cobbler>).
@@ -174,7 +177,10 @@ physPinToGpio x = do
 -- 'unsafePerformIO' internally, because the pin mapping depends on
 -- the board revision.  Returns 'Nothing' if the pin number is
 -- invalid; e. g. it is out of range or is a power or ground pin
--- on the physical connector.
+-- on the physical connector.  See
+-- <https://github.com/ppelleti/hs-wiringPi/blob/master/pin-diagram.png the pretty picture>
+-- for details.  (The picture depicts the mapping when 'piBoardRev' is 2;
+-- there is a slightly different mapping when 'piBoardRev' is 1.)
 pinToBcmGpio :: Pin -> Maybe Int
 pinToBcmGpio (Wpi n) = cvtPin n (unsafePerformIO . wpiPinToGpio)
 pinToBcmGpio (Gpio n) = cvtPin n id
