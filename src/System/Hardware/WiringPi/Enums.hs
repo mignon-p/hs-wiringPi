@@ -12,7 +12,8 @@ data Value = LOW | HIGH deriving (Eq, Ord, Show, Read, Enum, Bounded)
 data Mode = INPUT      -- ^ digital input
           | OUTPUT     -- ^ digital output
           | PWM_OUTPUT -- ^ pulse-width modulation; only supported on wiringPi pins 1, 23, 24, and 26
-          | GPIO_CLOCK -- ^ clock output; only supported on wiringPi pins 7 and 29
+          | GPIO_CLOCK -- ^ <https://pinout.xyz/pinout/gpclk clock output>;
+                       -- only supported on wiringPi pins 7, 21, 22, and 29
           deriving (Eq, Ord, Show, Read, Enum, Bounded)
 
 -- | Use with 'pullUpDnControl' to enable internal pull-up or pull-down

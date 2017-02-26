@@ -34,7 +34,7 @@ interchangeable.
 
 The following diagram illustrates the three names of each pin, and
 also identifies which pins can be placed in `PWM_OUTPUT` mode or
-`GPIO_CLOCK` mode.
+[`GPIO_CLOCK`][8] mode.
 
 ![Pinout](pin-diagram.png)
 
@@ -61,3 +61,4 @@ the LGPLv3+.
 [5]: http://wiringpi.com/pins/
 [6]: https://pinout.xyz/pinout/wiringpi
 [7]: https://en.wikipedia.org/wiki/Pulse-width_modulation
+[8]: https://pinout.xyz/pinout/gpclk

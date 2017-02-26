@@ -173,11 +173,12 @@ physPinToGpio x = do
   wiringPiSetupGpio
   c_physPinToGpio x
 
--- | Converts a pin to its \"Broadcom GPIO\" number.  This relies on
--- 'unsafePerformIO' internally, because the pin mapping depends on
--- the board revision.  Returns 'Nothing' if the pin number is
--- invalid; e. g. it is out of range or is a power or ground pin
--- on the physical connector.  See
+-- | Converts a pin to its \"Broadcom GPIO\" number.  (In other words,
+-- the pin number that would be specified with the 'Gpio'
+-- constructor.)  This relies on 'unsafePerformIO' internally, because
+-- the pin mapping depends on the board revision.  Returns 'Nothing'
+-- if the pin number is invalid; e. g. it is out of range or is a
+-- power or ground pin on the physical connector.  See
 -- <https://github.com/ppelleti/hs-wiringPi/blob/master/pin-diagram.png the pretty picture>
 -- for details.  (The picture depicts the mapping when 'piBoardRev' is 2;
 -- there is a slightly different mapping when 'piBoardRev' is 1.)
