@@ -3,6 +3,7 @@ module System.Hardware.WiringPi.Enums
   , Mode(..)
   , Pud(..)
   , PwmMode(..)
+  , IntEdge(..)
   ) where
 
 -- | Digital logic level.
@@ -26,4 +27,11 @@ data Pud = PUD_OFF  -- ^ disable pull-up/pull-down
 -- | Argument to 'pwmSetMode' to set \"balanced\" mode or \"mark-space\" mode.
 data PwmMode = PWM_MODE_BAL -- ^ balanced mode
              | PWM_MODE_MS  -- ^ mark-space mode
+             deriving (Eq, Ord, Show, Read, Enum, Bounded)
+
+-- | Interrupt levels, used with 'wiringPiISR'.
+data IntEdge = INT_EDGE_SETUP   -- ^ no initialization of the pin will happen
+             | INT_EDGE_FALLING -- ^ interrupt on a falling of the incoming signal
+             | INT_EDGE_RISING  -- ^ interrupt on a rising of the incoming signal
+             | INT_EDGE_BOTH    -- ^ interrupt on both of the incoming signal
              deriving (Eq, Ord, Show, Read, Enum, Bounded)
