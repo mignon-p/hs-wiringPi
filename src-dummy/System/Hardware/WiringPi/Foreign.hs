@@ -4,6 +4,7 @@ module System.Hardware.WiringPi.Foreign
   , modeToInt
   , pudToInt
   , pwmModeToInt
+  , intEdgeToInt
   , c_wiringPiSetupGpio
   , c_pinMode
   , c_pullUpDnControl
@@ -17,9 +18,12 @@ module System.Hardware.WiringPi.Foreign
   , c_piBoardRev
   , c_wpiPinToGpio
   , c_physPinToGpio
+  , mkWiringPiISRCallback
+  , c_wiringPiISR
   ) where
 
 import Foreign.C.Types ( CInt(..), CUInt(..) )
+import Foreign.Ptr ( FunPtr )
 import System.Hardware.WiringPi.Enums
 
 valueToInt :: Value -> CInt
@@ -44,6 +48,12 @@ pudToInt PUD_UP   = 8
 pwmModeToInt :: PwmMode -> CInt
 pwmModeToInt PWM_MODE_BAL = 9
 pwmModeToInt PWM_MODE_MS  = 10
+
+intEdgeToInt :: IntEdge -> CInt
+intEdgeToInt INT_EDGE_SETUP   = 11
+intEdgeToInt INT_EDGE_FALLING = 12
+intEdgeToInt INT_EDGE_RISING  = 13
+intEdgeToInt INT_EDGE_BOTH    = 14
 
 c_wiringPiSetupGpio :: IO CInt
 c_wiringPiSetupGpio = return 0
@@ -98,3 +108,13 @@ c_wpiPinToGpio _ = return (-1)
 c_physPinToGpio :: CInt
                 -> IO CInt
 c_physPinToGpio _ = return (-1)
+
+mkWiringPiISRCallback :: IO ()
+                      -> IO (FunPtr (IO ()))
+mkWiringPiISRCallback = undefined
+
+c_wiringPiISR :: CInt
+              -> CInt
+              -> FunPtr (IO ())
+              -> IO CInt
+c_wiringPiISR = undefined

@@ -6,6 +6,7 @@ module System.Hardware.WiringPi.Foreign
   , modeToInt
   , pudToInt
   , pwmModeToInt
+  , intEdgeToInt
   , c_wiringPiSetupGpio
   , c_pinMode
   , c_pullUpDnControl
@@ -19,9 +20,12 @@ module System.Hardware.WiringPi.Foreign
   , c_piBoardRev
   , c_wpiPinToGpio
   , c_physPinToGpio
+  , mkWiringPiISRCallback
+  , c_wiringPiISR
   ) where
 
 import Foreign.C.Types ( CInt(..), CUInt(..) )
+import Foreign.Ptr ( FunPtr )
 import System.Hardware.WiringPi.Enums
 
 #include <wiringPi.h>
@@ -49,6 +53,12 @@ pudToInt PUD_UP   = #const PUD_UP
 pwmModeToInt :: PwmMode -> CInt
 pwmModeToInt PWM_MODE_BAL = #const PWM_MODE_BAL
 pwmModeToInt PWM_MODE_MS  = #const PWM_MODE_MS
+
+intEdgeToInt :: IntEdge -> CInt
+intEdgeToInt INT_EDGE_SETUP   = #const INT_EDGE_SETUP
+intEdgeToInt INT_EDGE_FALLING = #const INT_EDGE_FALLING
+intEdgeToInt INT_EDGE_RISING  = #const INT_EDGE_RISING
+intEdgeToInt INT_EDGE_BOTH    = #const INT_EDGE_BOTH
 
 foreign import ccall unsafe "wiringPi.h wiringPiSetupGpio"
     c_wiringPiSetupGpio :: IO CInt
@@ -103,3 +113,13 @@ foreign import ccall unsafe "wiringPi.h wpiPinToGpio"
 foreign import ccall unsafe "wiringPi.h physPinToGpio"
     c_physPinToGpio :: CInt
                     -> IO CInt
+
+foreign import ccall "wrapper"
+    mkWiringPiISRCallback :: IO ()
+                          -> IO (FunPtr (IO ()))
+
+foreign import ccall "wiringPi.h wiringPiISR"
+    c_wiringPiISR :: CInt
+                  -> CInt
+                  -> FunPtr (IO ())
+                  -> IO CInt

@@ -23,6 +23,7 @@ module System.Hardware.WiringPi
   , Mode (..)
   , Pud (..)
   , PwmMode (..)
+  , IntEdge (..)
   , PwmValue
     -- * Setup function
     -- | See <http://wiringpi.com/reference/setup/ WiringPi Setup functions>.
@@ -51,6 +52,7 @@ module System.Hardware.WiringPi
   , pwmSetClock
   , piBoardRev
   , pinToBcmGpio
+  , wiringPiISR
   ) where
 
 import Control.Applicative
@@ -172,6 +174,11 @@ physPinToGpio :: CInt -> IO CInt
 physPinToGpio x = do
   wiringPiSetupGpio
   c_physPinToGpio x
+
+wiringPiISR :: Pin -> IntEdge -> IO () -> IO Int
+wiringPiISR pin mode callback = do
+  cb <- mkWiringPiISRCallback callback
+  fromIntegral <$> c_wiringPiISR (pin2bcm pin "wiringPiISR") (intEdgeToInt mode) cb
 
 -- | Converts a pin to its \"Broadcom GPIO\" number.  (In other words,
 -- the pin number that would be specified with the 'Gpio'
