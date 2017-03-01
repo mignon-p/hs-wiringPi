@@ -1,5 +1,11 @@
 -*- Text -*-
 
+Unreleased
+
+* Addition of wiringPiISR function.  (Contributed by Satoshi Ogata.)
+
+* Improvements to documentation.
+
 1.0  @  Mon Jan 23 17:51:35 PST 2017
 
 * Initialization is now automatic.
