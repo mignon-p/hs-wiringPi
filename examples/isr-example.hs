@@ -1,6 +1,6 @@
 -- Example of using wiringPiISR
--- Run with LED connected to wiringPi pin 8 (GPIO 14)
--- and button connected to wiringPi pin 10 (GPIO 15)
+-- Run with LED connected to wiringPi pin 1 (GPIO 18)
+-- and button connected to wiringPi pin 6 (GPIO 25)
 --   https://goo.gl/photos/VjPDQ8HW1Dp2vEFW7
 -- Blinks the LED when toggle button
 --   https://goo.gl/photos/VjPDQ8HW1Dp2vEFW7
@@ -12,20 +12,23 @@ import Data.IORef
 import System.Hardware.WiringPi
 
 led :: Pin
-led = Gpio 14
+led = Wpi 1
 
 button :: Pin
-button = Gpio 15
+button = Wpi 6
+
+-- Is button connected to GND?
+activeLow :: Bool
+activeLow = True
 
 main = do
-  ref <- newIORef LOW
   pinMode led OUTPUT
   pinMode button INPUT
-  wiringPiISR button INT_EDGE_BOTH $ handleButton ref
+  pullUpDnControl button $ if activeLow then PUD_UP else PUD_DOWN
+  wiringPiISR button INT_EDGE_BOTH handleButton
   forever $ getChar
  where
-  handleButton ref = do
-    val <- readIORef ref
-    let next = if val == LOW then HIGH else LOW
-    digitalWrite led next
-    modifyIORef ref $ id . const next
+  handleButton = do
+    val <- digitalRead button
+    let inv = if val == LOW then HIGH else LOW
+    digitalWrite led $ if activeLow then inv else val
