@@ -175,10 +175,12 @@ physPinToGpio x = do
   wiringPiSetupGpio
   c_physPinToGpio x
 
-wiringPiISR :: Pin -> IntEdge -> IO () -> IO Int
+wiringPiISR :: Pin -> IntEdge -> IO () -> IO ()
 wiringPiISR pin mode callback = do
   cb <- mkWiringPiISRCallback callback
-  fromIntegral <$> c_wiringPiISR (pin2bcm pin "wiringPiISR") (intEdgeToInt mode) cb
+  ret <- c_wiringPiISR (pin2bcm pin "wiringPiISR") (intEdgeToInt mode) cb
+  when (ret /= 0) $
+    fail $ "failing return code " ++ show ret ++ " for wiringPiISR"
 
 -- | Converts a pin to its \"Broadcom GPIO\" number.  (In other words,
 -- the pin number that would be specified with the 'Gpio'
