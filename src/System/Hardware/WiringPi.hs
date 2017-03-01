@@ -52,6 +52,8 @@ module System.Hardware.WiringPi
   , pwmSetClock
   , piBoardRev
   , pinToBcmGpio
+    -- * Interrupt functions
+    -- | See <http://wiringpi.com/reference/priority-interrupts-and-threads/ Priority, Interrupts and Threads>.
   , wiringPiISR
   ) where
 
@@ -175,6 +177,11 @@ physPinToGpio x = do
   wiringPiSetupGpio
   c_physPinToGpio x
 
+-- | Sets up an interrupt handler for the specified pin.  When the
+-- pin transitions as specified by 'IntEdge', the IO action will be
+-- executed.  Be aware that if interrupts come quickly enough, the
+-- IO action might only be called once when the pin has transitioned
+-- more than once.
 wiringPiISR :: Pin -> IntEdge -> IO () -> IO ()
 wiringPiISR pin mode callback = do
   cb <- mkWiringPiISRCallback callback
