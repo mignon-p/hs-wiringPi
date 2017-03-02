@@ -162,10 +162,35 @@ pwmSetClock divisor = do
   wiringPiSetupGpio
   c_pwmSetClock $ fromIntegral divisor
 
+-- | Returns 1 for very early Rasbperry Pis and 2 for all others.
+-- This distinction is because at some point early on, the Raspberry
+-- Pi foundation replaced BCM_GPIO 0, 1, and 21 with BCM_GPIO
+-- 2, 3, and 27 at the same places on the P1 connector.  Also, the
+-- user-accessible I²C bus changed from bus 0 to bus 1.
+piGpioLayout :: IO Int
+piGpioLayout = do
+  -- WiringPi unceremoniously changed the name of the C function from
+  -- piBoardRev to piGpioLayout in version 2.36.  While this is a better
+  -- name, it makes it a little harder to support both version 2.36 and
+  -- earlier versions.  I'm sure I could do something with a configure
+  -- script to detect which function is present at build time, but instead
+  -- I'm going to take an easier, albeit more indirect, approach.
+  --
+  -- Since the point of piGpioLayout is to determine how wiringPi pin
+  -- numbers map to BCM_GPIO numbers, I'm going to work backwards and
+  -- observe how wiringPi pin 2 gets mapped to a GPIO number, and
+  -- infer piGpioLayout from that.
+  bcm <- wpiPinToGpio 2
+  case bcm of
+    21 -> return 1
+    27 -> return 2
+    _ -> fail $ "unexpected BCM_GPIO " ++ show bcm ++ " in piGpioLayout"
+
+-- | An alias for 'piGpioLayout'.  (The wiringPi C library changed
+-- the name from @piBoardRev@ to @piGpioLayout@ in version 2.36, and
+-- really @piGpioLayout@ is a much better name for it.)
 piBoardRev :: IO Int
-piBoardRev = do
-  wiringPiSetupGpio
-  fromIntegral <$> c_piBoardRev
+piBoardRev = piGpioLayout
 
 wpiPinToGpio :: CInt -> IO CInt
 wpiPinToGpio x = do

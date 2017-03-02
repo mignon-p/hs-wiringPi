@@ -17,7 +17,6 @@ module System.Hardware.WiringPi.Foreign
   , c_pwmSetMode
   , c_pwmSetRange
   , c_pwmSetClock
-  , c_piBoardRev
   , c_wpiPinToGpio
   , c_physPinToGpio
   , mkWiringPiISRCallback
@@ -102,9 +101,6 @@ foreign import ccall unsafe "wiringPi.h pwmSetRange"
 foreign import ccall unsafe "wiringPi.h pwmSetClock"
     c_pwmSetClock :: CInt
                   -> IO ()
-
-foreign import ccall unsafe "wiringPi.h piBoardRev"
-    c_piBoardRev :: IO CInt
 
 foreign import ccall unsafe "wiringPi.h wpiPinToGpio"
     c_wpiPinToGpio :: CInt

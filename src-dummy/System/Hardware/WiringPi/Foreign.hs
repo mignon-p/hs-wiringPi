@@ -15,7 +15,6 @@ module System.Hardware.WiringPi.Foreign
   , c_pwmSetMode
   , c_pwmSetRange
   , c_pwmSetClock
-  , c_piBoardRev
   , c_wpiPinToGpio
   , c_physPinToGpio
   , mkWiringPiISRCallback
@@ -97,9 +96,6 @@ c_pwmSetRange _ = return ()
 c_pwmSetClock :: CInt
               -> IO ()
 c_pwmSetClock _ = return ()
-
-c_piBoardRev :: IO CInt
-c_piBoardRev = return 2
 
 c_wpiPinToGpio :: CInt
                -> IO CInt

@@ -41,11 +41,10 @@ also identifies which pins can be placed in `PWM_OUTPUT` mode or
 Similar diagrams are available on [the wiringPi site][5] or on
 [pinout.xyz][6].
 
-One additional wrinkle is that revision 1 boards (those with only 256
-megs of RAM) use different Broadcom GPIO numbers for a few of the
-pins.  WiringPi automatically takes this into account, but it means
-that equality for `Pin` actually depends on which board revision you
-have.
+One additional wrinkle is that some very early Raspberry Pis use
+different Broadcom GPIO numbers for a few of the pins.  WiringPi
+automatically takes this into account, but it means that equality for
+`Pin` actually depends on which board revision you have.
 
 ## Licensing
 
