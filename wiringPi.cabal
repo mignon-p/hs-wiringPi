@@ -136,6 +136,8 @@ executable isr-example
   -- Base language which the package is written in.
   default-language:    Haskell2010
 
+  ghc-options:         -threaded
+
 executable output-example
   -- .hs or .lhs file containing the Main module.
   main-is:             output-example.hs

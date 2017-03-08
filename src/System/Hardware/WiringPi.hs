@@ -206,7 +206,11 @@ physPinToGpio x = do
 -- pin transitions as specified by 'IntEdge', the IO action will be
 -- executed.  Be aware that if interrupts come quickly enough, the
 -- IO action might only be called once when the pin has transitioned
--- more than once.
+-- more than once.  If your program uses this function, you must link
+-- with @-threaded@, or deadlock may occur.  You should only call
+-- @wiringPiISR@ once per pin, because the underlying C library does
+-- not support changing or removing an interrupt handler once it has
+-- been added.
 wiringPiISR :: Pin -> IntEdge -> IO () -> IO ()
 wiringPiISR pin mode callback = do
   cb <- mkWiringPiISRCallback callback
