@@ -95,7 +95,12 @@ library
   if (! arch(x86_64))
     extra-libraries:   wiringPi
 
-  ghc-options:         -fwarn-unused-imports -fwarn-unused-binds
+  -- GHC 7.10 and up will complain about Control.Applicative being
+  -- an used import.  So only enable warnings for lower versions of GHC.
+  -- (The system-supplied GHC for Raspbian Jessie is GHC 7.6.3, so that
+  -- is primarily what I'm targeting.)
+  if impl(ghc < 7.10)
+    ghc-options:         -fwarn-unused-imports -fwarn-unused-binds
 
 executable pwm-example
   -- .hs or .lhs file containing the Main module.
