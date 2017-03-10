@@ -50,6 +50,7 @@ module System.Hardware.WiringPi
   , pwmSetMode
   , pwmSetRange
   , pwmSetClock
+  , piGpioLayout
   , piBoardRev
   , pinToBcmGpio
     -- * Interrupt functions
