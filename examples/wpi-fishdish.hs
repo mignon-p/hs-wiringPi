@@ -1,6 +1,7 @@
 -- Example for "Fish Dish" board.
 --   https://www.pi-supply.com/product/fish-dish-raspberry-pi-led-buzzer-board/
 --   http://store.acmeun.com/products/fish-dish-raspberry-pi-led-buzzer-board.html
+--   http://funwithsoftware.org/images/2017-FishDish-schematic.png
 -- Fish Dish uses some of the SPI pins as GPIO pins, so you'll need to
 -- disable SPI in raspi-config if it is enabled.
 -- You need to link this program with "-threaded", or deadlock will occur.

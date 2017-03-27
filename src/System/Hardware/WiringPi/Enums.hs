@@ -31,7 +31,8 @@ data PwmMode = PWM_MODE_BAL -- ^ balanced mode
 
 -- | Interrupt levels, used with 'wiringPiISR'.
 data IntEdge = INT_EDGE_SETUP   -- ^ no initialization of the pin will happen
-             | INT_EDGE_FALLING -- ^ interrupt on a falling of the incoming signal
-             | INT_EDGE_RISING  -- ^ interrupt on a rising of the incoming signal
-             | INT_EDGE_BOTH    -- ^ interrupt on both of the incoming signal
+             | INT_EDGE_FALLING -- ^ interrupt on a falling edge of the incoming signal
+             | INT_EDGE_RISING  -- ^ interrupt on a rising edge of the incoming signal
+             | INT_EDGE_BOTH    -- ^ interrupt on both rising edge and falling
+                                -- edge of the incoming signal
              deriving (Eq, Ord, Show, Read, Enum, Bounded)
