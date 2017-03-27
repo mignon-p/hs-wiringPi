@@ -1,13 +1,15 @@
 -*- Text -*-
 
-Unreleased
+1.0.1  @  Mon Mar 27 13:30:49 PDT 2017
+
+* Examples for Pi-LITEr and Fish Dish boards.
 
 * Added piGpioLayout as a synonym for piBoardRev, to reflect the name
   change in version 2.36 of the C library.
 
 * Addition of wiringPiISR function.  (Contributed by Satoshi Ogata.)
 
-* Improvements to documentation.
+* Improvements to documentation and examples.
 
 1.0  @  Mon Jan 23 17:51:35 PST 2017
 
