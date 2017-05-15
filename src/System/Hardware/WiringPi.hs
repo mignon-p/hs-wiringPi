@@ -58,7 +58,6 @@ module System.Hardware.WiringPi
   , wiringPiISR
   ) where
 
-import Control.Applicative
 import Control.Exception ( evaluate )
 import Control.Monad ( when )
 import Data.Ord ( comparing )
