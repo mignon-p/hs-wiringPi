@@ -96,7 +96,7 @@ library
     extra-libraries:   wiringPi
 
   -- GHC 7.10 and up will complain about Control.Applicative being
-  -- an used import.  So only enable warnings for lower versions of GHC.
+  -- an unused import.  So only enable warnings for lower versions of GHC.
   -- (The system-supplied GHC for Raspbian Jessie is GHC 7.6.3, so that
   -- is primarily what I'm targeting.)
   if impl(ghc < 7.10)
