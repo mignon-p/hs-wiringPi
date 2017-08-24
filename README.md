@@ -36,7 +36,7 @@ The following diagram illustrates the three names of each pin, and
 also identifies which pins can be placed in `PWM_OUTPUT` mode or
 [`GPIO_CLOCK`][8] mode.
 
-![Pinout](pin-diagram.png)
+![Pinout](https://raw.githubusercontent.com/ppelleti/hs-wiringPi/master/pin-diagram.png)
 
 Similar diagrams are available on [the wiringPi site][5] or on
 [pinout.xyz][6].
