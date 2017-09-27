@@ -1,5 +1,11 @@
 -*- Text -*-
 
+1.0.1.1  @  Thu Oct  5 11:18:47 PDT 2017
+
+* Changed some of the examples to work with the hs-wiringPi test board.
+
+* No changes to the library.
+
 1.0.1  @  Mon Mar 27 13:30:49 PDT 2017
 
 * Examples for Pi-LITEr and Fish Dish boards.

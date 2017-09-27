@@ -53,6 +53,18 @@ the examples in the `examples` directory are in the public domain.
 However, be aware that the wiringPi C library itself is licensed under
 the LGPLv3+.
 
+## Examples
+
+There are several examples in the `examples` directory.  You can run
+each example by wiring up a circuit on a breadboard as specified by
+the comments in the example.  Or, for something more permanent and
+professional-looking, you can use the
+[hs-wiringPi test board](https://github.com/ppelleti/hs-wiringPi-test-board).
+The hs-wiringPi test board can be used with all of the examples,
+except for `wpi-fishdish`, which requires the
+[Fish Dish](https://www.pi-supply.com/product/fish-dish-raspberry-pi-led-buzzer-board/)
+board instead.
+
 [1]: http://wiringpi.com/
 [2]: https://www.raspberrypi.org/
 [3]: https://www.raspberrypi.org/downloads/raspbian/

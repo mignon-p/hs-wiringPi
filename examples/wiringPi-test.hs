@@ -1,20 +1,23 @@
 -- This is a basic test of most of wiringPi's functionality.
--- You should connect LEDs to wiringPi pins 0, 1, 2, 3, and 7 via
--- appropriate resistors.  Connect wiringPi pins 4 and 5 to each other
--- via a 1K resistor.  Connect wiringPi pin 6 to a momentary
+-- You should connect LEDs to wiringPi pins 0-7, 23, and 26 via
+-- appropriate resistors.  Connect wiringPi pins 21 and 22 to each other
+-- via a 1K resistor.  Connect wiringPi pin 25 to a momentary
 -- pushbutton that can pull it to GND via a 1K resistor.
---   https://www.flickr.com/photos/107479024@N04/32074853902/
+-- This is compatible with the hs-wiringPi Test Board:
+--   https://github.com/ppelleti/hs-wiringPi-test-board
 
 import Control.Concurrent
 import Control.Monad
+import Data.Bits
 import System.Exit
 
 import System.Hardware.WiringPi
 
-ledPins = map Wpi [7,0,2,3]
-pwmPin = Wpi 1
-connectedPins = (Wpi 4, Wpi 5)
-buttonPin = Wpi 6
+ledPins = map Wpi [0..7]
+pwmPins = map Wpi [26, 23]
+connectedPins = (Wpi 21, Wpi 22)
+buttonPin = Wpi 25
+cylon = [0..6] ++ [7,6..1]
 
 shortDelay :: IO ()
 shortDelay = threadDelay 50000
@@ -60,22 +63,23 @@ testPullUpDown = do
 blinkAndWait :: IO ()
 blinkAndWait = do
   -- setup
-  putStrLn "One LED should be pulsing, and four LEDs should be blinking."
+  putStrLn "Two LEDs should be pulsing, and eight LEDs should be blinking."
   putStrLn "Press button to exit."
   forM_ ledPins $ \pin -> pinMode pin OUTPUT
-  pinMode pwmPin PWM_OUTPUT
+  forM_ pwmPins $ \pin -> pinMode pin PWM_OUTPUT
   pinMode buttonPin INPUT
   pullUpDnControl buttonPin PUD_UP
 
   -- blink LEDs and wait for button to be pressed
   let loop x = do
-        let y = (sin x + 1) / 2
-            y' = y ** 2.8       -- gamma correction
-            analog = y' * 1024
-        pwmWrite pwmPin $ round analog
-        let n = floor x `mod` length ledPins
-        forM_ (zip ledPins [0..]) $ \(pin, i) ->
-          digitalWrite pin (if i == n then HIGH else LOW)
+        let k = 2 * pi / fromIntegral (length cylon)
+            y1 = (cos (x * k) + 1) / 2
+            y2 = 1 - y1
+            y' = map (** 2.8) [y1, y2]   -- gamma correction
+            analog = map (* 1024) y'
+        zipWithM_ (\pin a -> pwmWrite pin $ round a) pwmPins analog
+        let n = cylon !! (floor x `mod` length cylon)
+        digitalWriteByte $ bit n
         shortDelay
         button <- digitalRead buttonPin
         when (button == HIGH) $ loop (x + 0.1)
@@ -84,7 +88,7 @@ blinkAndWait = do
 
   -- leave all LEDs off
   forM_ ledPins $ \pin -> digitalWrite pin LOW
-  pwmWrite pwmPin 0
+  forM_ pwmPins $ \pin -> pwmWrite pin 0
 
 main = do
   rev <- piGpioLayout

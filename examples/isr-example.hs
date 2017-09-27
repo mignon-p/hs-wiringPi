@@ -1,9 +1,11 @@
--- Example of using wiringPiISR
+-- Example of using wiringPiISR.
 -- Run with LED connected to wiringPi pin 1 (GPIO 18)
--- and button connected to wiringPi pin 6 (GPIO 25)
+-- and button connected to wiringPi pin 25 (GPIO 26).
+-- Lights the LED when button is pressed.
 --   https://goo.gl/photos/VjPDQ8HW1Dp2vEFW7
--- Blinks the LED when toggle button
---   https://goo.gl/photos/VjPDQ8HW1Dp2vEFW7
+-- Compatible with the hs-wiringPi test board.
+--   https://github.com/ppelleti/hs-wiringPi-test-board
+-- You need to link this program with "-threaded", or deadlock will occur.
 
 import Control.Concurrent
 import Control.Monad
@@ -15,7 +17,7 @@ led :: Pin
 led = Wpi 1
 
 button :: Pin
-button = Wpi 6
+button = Wpi 25
 
 -- Is button connected to GND?
 activeLow :: Bool

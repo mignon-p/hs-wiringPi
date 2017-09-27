@@ -2,6 +2,8 @@
 -- Run with an LED connected to wiringPi pin 1:
 --   https://www.flickr.com/photos/107479024@N04/32201782695/
 -- Pulses the LED.
+-- Compatible with the hs-wiringPi test board.
+--   https://github.com/ppelleti/hs-wiringPi-test-board
 
 import Control.Concurrent
 import Control.Monad

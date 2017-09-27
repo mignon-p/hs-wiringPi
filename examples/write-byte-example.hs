@@ -3,12 +3,13 @@
 --   https://www.flickr.com/photos/107479024@N04/31360240974/
 -- Blinks the LEDs in sequence:
 --   https://www.flickr.com/photos/107479024@N04/32070893472/
--- Can also be used with the Pi-LITEr:
+-- Compatible with the hs-wiringPi test board:
+--   https://github.com/ppelleti/hs-wiringPi-test-board
+-- Should also work with the Ladder Board:
+--   https://projects.drogon.net/the-raspberry-ladder-board/
+-- Can also be used with the Pi-LITEr if you change the order:
 --   https://pinout.xyz/pinout/pi_lite_r
 --   http://store.acmeun.com/products/pi-liter-8-led-strip-for-the-raspberry-pi.html
--- Should also work with the Ladder Board, although you'd need to
--- change "pins" to [0..7] to get the right order:
---   https://projects.drogon.net/the-raspberry-ladder-board/
 
 import Control.Concurrent
 import Control.Monad
@@ -16,9 +17,11 @@ import Data.Bits
 
 import System.Hardware.WiringPi
 
--- This is the order in which the LEDs appear on the Pi-LITEr,
--- by wiringPi pin number.
-pins = [7, 0, 2, 1, 3, 4, 5, 6]
+-- Uncomment this to use the Pi-LITEr.
+-- pins = [7, 0, 2, 1, 3, 4, 5, 6]
+
+-- This works for hs-wiringPi test board, or for Ladder Board.
+pins = [0..7]
 
 main = do
   forM_ pins $ \x -> pinMode (Wpi x) OUTPUT
