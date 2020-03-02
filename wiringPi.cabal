@@ -93,7 +93,13 @@ library
   default-language:    Haskell2010
 
   if (! arch(x86_64))
-    extra-libraries:   wiringPi
+    include-dirs:
+      includes
+    c-sources:
+      cbits/softPwm.c
+      cbits/softTone.c
+      cbits/wiringPi.c
+      cbits/piHiPri.c
 
   -- GHC 7.10 and up will complain about Control.Applicative being
   -- an unused import.  So only enable warnings for lower versions of GHC.
